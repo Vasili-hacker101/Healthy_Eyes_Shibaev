@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 import pygame
 import sys
-import cv2
+import cv2                      # требуется библиотека OpenCV
 
 import math
 DISPLAY = (1280, 720)
@@ -34,9 +34,10 @@ cam = cv2.VideoCapture(0)
 
 class Ball:
 
-    def __init__(self, x, y, img, sound,  xspeed=False, yspeed=False):
+    def __init__(self, level, x, y, img, sound,  xspeed=False, yspeed=False):
         self.x = x
         self.y = y
+        self.levelnum = level
         if xspeed:
             self.x_speed = 50
         else:
@@ -52,6 +53,7 @@ class Ball:
         self.color = "white"
         self.num_of_collides = 0
         self.sound = sound
+
     def update(self, surface):
         self.x += int(self.x_speed / 10)
         self.y += int(self.y_speed / 10)
@@ -73,7 +75,7 @@ class Ball:
             retval, frame = cam.read()
             if retval != True:
                 raise ValueError("Can't read frame")
-            cv2.imwrite(f"{IMAGES_DIR}/img{self.num_of_collides}.jpg", frame)
+            cv2.imwrite(f"{IMAGES_DIR}/img{self.levelnum}-{self.num_of_collides}.jpg", frame)
 
         if self.y + self.height >= 720 or self.y <= 0:
             self.num_of_collides += 1
@@ -87,7 +89,7 @@ class Ball:
             retval, frame = cam.read()
             if retval != True:
                 raise ValueError("Can't read frame")
-            cv2.imwrite(f"{IMAGES_DIR}/img{self.num_of_collides}.jpg", frame)
+            cv2.imwrite(f"{IMAGES_DIR}/img{self.levelnum}-{self.num_of_collides}.jpg", frame)
 
     def draw(self, surface):
         surface.blit(self.image, (self.x, self.y))
@@ -104,11 +106,11 @@ def instruction(bg, time, camera=False):
         if camera:
             if pygame.time.get_ticks() - clock > 10000:
                     one_two_three.play()
-                    pygame.time.wait(4000)
+                    pygame.time.wait(2000)
                     retval, frame = cam.read()
                     if retval != True:
                         raise ValueError("Can't read frame")
-                    cv2.imwrite(f"{IMAGES_DIR}/Ex_2.jpg", frame)
+                    cv2.imwrite(f"{IMAGES_DIR}/img4_1.jpg", frame)
                     done = False
         else:
             if pygame.time.get_ticks() - clock > time * 1000:
@@ -118,8 +120,8 @@ def instruction(bg, time, camera=False):
         pygame.display.flip()
 
 
-def level(x, y, bg, img, bg_nex, sound=True):
-    object = Ball(533, 308, img, sound, x, y)
+def level(level, x, y, bg, img, bg_nex, sound=True):
+    object = Ball(level, 533, 308, img, sound, x, y)
     clock = pygame.time.get_ticks()
     running = True
 
@@ -145,9 +147,9 @@ instruction(bg, 3)
 instruct.play()
 instruction(bg2, 7)
 
-level(True, False, level_bg, object_image, bg_next)
-level(False, True, level_bg, object_image, bg_next)
-level(True, True, level_bg, object_image, bg_next2, False)
+level(1, True, False, level_bg, object_image, bg_next)
+level(2, False, True, level_bg, object_image, bg_next)
+level(3, True, True, level_bg, object_image, bg_next2, False)
 
 instruct2.play()
 instruction(bg3, 10, True)
